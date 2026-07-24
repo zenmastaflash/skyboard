@@ -313,8 +313,8 @@ select:focus-visible, button:focus-visible, input:focus-visible {
 /* ── Globe ────────────────────────────────────────────────── */
 .map-wrap { grid-area: map; position: relative; overflow: hidden; background: var(--map-ink); }
 
-#globe { position: absolute; inset: 0; }
-#globe canvas { display: block; cursor: grab; }
+#globe { position: absolute; inset: 0; touch-action: none; }
+#globe canvas { display: block; cursor: grab; touch-action: none; }
 #globe canvas.dragging { cursor: grabbing; }
 
 .plane-label {
@@ -365,6 +365,7 @@ select:focus-visible, button:focus-visible, input:focus-visible {
   right: 16px;
   bottom: 16px;
   width: 308px;
+  max-width: calc(100vw - 32px);
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(12px);
   border: 1px solid var(--hairline);
