@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skyboard — live flight dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/skyboard.css?v=27">
+</head>
+<body data-view="standard">
+
+<!-- ── Telemetry bar ─────────────────────────────────────── -->
+<header class="topbar">
+  <div class="wordmark">SKYBOARD</div>
+  <div class="stats" id="stats">
+    <div class="stat"><span class="stat-label">Airborne</span><span class="stat-value" id="stat-airborne">—</span></div>
+    <div class="stat"><span class="stat-label">Highest</span><span class="stat-value" id="stat-highest">—</span></div>
+    <div class="stat"><span class="stat-label">Fastest</span><span class="stat-value" id="stat-fastest">—</span></div>
+    <div class="stat"><span class="stat-label">Longest leg</span><span class="stat-value" id="stat-longest">—</span></div>
+  </div>
+  <div class="clock" id="clock">--:--:-- UTC</div>
+</header>
+
+<!-- ── Control rail ──────────────────────────────────────── -->
+<aside class="rail">
+  <section class="rail-section">
+    <input id="search-input" list="search-list" placeholder="Find a flight or city"
+           autocomplete="off" aria-label="Search flights and cities">
+    <datalist id="search-list"></datalist>
+  </section>
+
+  <section class="rail-section" id="home-section">
+    <h2 class="rail-heading">Home airport</h2>
+    <div class="home-row">
+      <select id="home-select" aria-label="Home airport"></select>
+      <button id="geolocate" class="icon-btn" title="Use my location" aria-label="Set home airport from my location">◎</button>
+    </div>
+    <p class="rail-hint" id="home-hint" hidden></p>
+  </section>
+
+  <section class="rail-section">
+    <button id="escape-btn" class="escape-btn">Escape now</button>
+    <p class="rail-hint">The cheapest ways out of <span id="escape-home">AMS</span>, with travel dates</p>
+    <div id="escape-panel" class="escape-panel" hidden></div>
+  </section>
+
+  <section class="rail-section">
+    <h2 class="rail-heading">Budget ring</h2>
+    <div class="budget-range">
+      <div class="budget-track"><div class="budget-fill" id="budget-fill"></div></div>
+      <input type="range" id="budget-min" min="20" max="1500" step="10" value="50" aria-label="Minimum fare in euros">
+      <input type="range" id="budget-max" min="20" max="1500" step="10" value="400" aria-label="Maximum fare in euros">
+    </div>
+    <div class="budget-row">
+      <span class="rail-hint" style="margin-top:0">min / max fare</span>
+      <span class="budget-value" id="budget-value">€50–400</span>
+    </div>
+    <label class="toggle-row"><input type="checkbox" id="budget-toggle"><span>Light up reachable destinations</span></label>
+  </section>
+
+  <section class="rail-section">
+    <h2 class="rail-heading">Dream list</h2>
+    <div id="dreams-list" class="escape-panel"></div>
+    <p class="rail-hint" id="dreams-hint">Save cities from their card to keep an eye on fares.</p>
+  </section>
+
+  <section class="rail-section">
+    <h2 class="rail-heading">Filters</h2>
+    <div class="chip-row" id="alliance-chips" role="group" aria-label="Alliance filter">
+      <button class="chip active" data-alliance="">All</button>
+      <button class="chip" data-alliance="star">Star</button>
+      <button class="chip" data-alliance="oneworld">oneworld</button>
+      <button class="chip" data-alliance="skyteam">SkyTeam</button>
+      <button class="chip" data-alliance="none">Unaligned</button>
+    </div>
+    <div class="filter-selects">
+      <select id="filter-origin" aria-label="Departure airport"><option value="">Any departure</option></select>
+      <select id="filter-dest" aria-label="Destination airport"><option value="">Any destination</option></select>
+    </div>
+  </section>
+
+  <section class="rail-section">
+    <h2 class="rail-heading">Layers</h2>
+    <label class="toggle-row"><input type="checkbox" id="sunset-toggle" checked><span>Sunset chaser</span></label>
+    <p class="rail-hint">Planes flying through golden hour right now</p>
+    <label class="toggle-row"><input type="checkbox" id="cities-toggle" checked><span>Cities</span></label>
+    <p class="rail-hint">Tap a city for today's fare from home</p>
+    <label class="toggle-row"><input type="checkbox" id="aurora-toggle" checked><span>Aurora chaser</span></label>
+    <p class="rail-hint">Live NOAA aurora oval — planes beneath it glow green</p>
+    <label class="toggle-row"><input type="checkbox" id="threads-toggle" checked><span>Origin threads</span></label>
+    <p class="rail-hint">Every plane tied by a thin line to where it took off</p>
+  </section>
+
+  <footer class="rail-footer">
+    <span id="data-mode" class="data-mode">MOCK DATA</span>
+    <span class="rail-hint">Press T for TV mode</span>
+  </footer>
+</aside>
+
+<!-- ── Globe ─────────────────────────────────────────────── -->
+<main class="map-wrap">
+  <div id="globe" aria-label="Live 3D globe of aircraft worldwide"></div>
+  <div id="boot" class="boot" role="status">
+    <span class="boot-line">ACQUIRING SKY<span class="boot-dots"></span></span>
+    <span class="boot-sub">first contact usually takes a few seconds</span>
+  </div>
+</main>
+
+<!-- ── Detail cards (one visible at a time) ──────────────── -->
+<article class="plane-card" id="plane-card" hidden aria-live="polite"></article>
+<article class="plane-card" id="city-card" hidden aria-live="polite"></article>
+
+<!-- 3D runtime + bundled assets (local, no CDN) -->
+<script src="vendor/three.min.js?v=27"></script>
+<script src="assets/textures.js?v=27"></script>
+<!-- Bundled data + runtime config -->
+<script src="js/config.js?v=27"></script>
+<script src="js/data/airports.js?v=27"></script>
+<script src="js/data/airlines.js?v=27"></script>
+<!-- Core -->
+<script src="js/core/bus.js?v=27"></script>
+<script src="js/core/registry.js?v=27"></script>
+<script src="js/core/geo.js?v=27"></script>
+<script src="js/core/solar.js?v=27"></script>
+<!-- Data access: one facade, swappable adapters -->
+<script src="js/api/adapters/mock.js?v=27"></script>
+<script src="js/api/adapters/live.js?v=27"></script>
+<script src="js/api/client.js?v=27"></script>
+<!-- Globe renderer -->
+<script src="js/globe/globe.js?v=27"></script>
+<script src="js/globe/planes3d.js?v=27"></script>
+<script src="js/globe/markers3d.js?v=27"></script>
+<script src="js/globe/cities3d.js?v=27"></script>
+<script src="js/globe/paths3d.js?v=27"></script>
+<script src="js/globe/aurora3d.js?v=27"></script>
+<!-- Features: one module each -->
+<script src="js/features/stats.js?v=27"></script>
+<script src="js/features/filters.js?v=27"></script>
+<script src="js/features/budget.js?v=27"></script>
+<script src="js/features/escape.js?v=27"></script>
+<script src="js/features/plane-card.js?v=27"></script>
+<script src="js/features/settings.js?v=27"></script>
+<script src="js/features/sunset.js?v=27"></script>
+<script src="js/features/threads.js?v=27"></script>
+<script src="js/features/aurora.js?v=27"></script>
+<script src="js/features/dreams.js?v=27"></script>
+<script src="js/features/cities.js?v=27"></script>
+<script src="js/features/search.js?v=27"></script>
+<script src="js/views/modes.js?v=27"></script>
+<script src="js/main.js?v=27"></script>
+</body>
+</html>
