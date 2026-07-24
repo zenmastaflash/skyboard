@@ -243,8 +243,9 @@ Skyboard.adapters.mock = (() => {
         const airline = shortHaul[Math.floor(r1 * shortHaul.length)];
         const dest = AIRPORTS[Math.floor(r2 * AIRPORTS.length)].iata;
         if (dest === origin) continue;
-        const hoursOut = 0.5 + r1 * 7.5;
-        if (hoursOut < hMin || hoursOut > hMax) continue;
+        // always inside the requested window — a mock with zero departures
+        // exercises nothing
+        const hoursOut = hMin + hash(`${day}:h:${origin}:${i}`) * (hMax - hMin);
         const f = fare(origin, dest);
         if (!f) continue;
         out.push({
