@@ -149,12 +149,20 @@ Skyboard.globe = (() => {
     if (layer.group) scene.add(layer.group);
   }
 
-  // ── interaction ──────────────────────────────────────────
+  // ── interaction: drag/touch rotates, wheel/pinch zooms, tap picks ──
   let dragging = false, moved = false, lastX = 0, lastY = 0;
+  const pointers = new Map();          // active pointers (touch = several)
+  let pinchDist0 = 0, distAtPinch = 0;
   const el = renderer.domElement;
+  el.style.touchAction = "none";       // the globe owns its gestures on touch
+
+  const pinchSpan = () => {
+    const [a, b] = [...pointers.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  };
 
   el.addEventListener("pointerdown", (e) => {
-    dragging = true; moved = false; lastX = e.clientX; lastY = e.clientY;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     orbit.lastInput = Date.now();
     // grabbing the globe hands the camera back to the user
     if (Skyboard.state.following) {
@@ -162,9 +170,28 @@ Skyboard.globe = (() => {
       Skyboard.bus.emit("follow:changed");
     }
     el.setPointerCapture(e.pointerId);
+    if (pointers.size === 2) {         // second finger: rotation ends, pinch begins
+      dragging = false;
+      pinchDist0 = pinchSpan();
+      distAtPinch = orbit.dist;
+      moved = true;
+      return;
+    }
+    dragging = true; moved = false; lastX = e.clientX; lastY = e.clientY;
     el.classList.add("dragging");
   });
   el.addEventListener("pointermove", (e) => {
+    const p = pointers.get(e.pointerId);
+    if (p) { p.x = e.clientX; p.y = e.clientY; }
+    if (pointers.size >= 2 && pinchDist0 > 0) {
+      const span = pinchSpan();
+      if (span > 0) {
+        orbit.dist = Math.max(orbit.min,
+          Math.min(orbit.max, distAtPinch * pinchDist0 / span));
+      }
+      orbit.lastInput = Date.now();
+      return;
+    }
     if (!dragging) return;
     const dx = e.clientX - lastX, dy = e.clientY - lastY;
     if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
@@ -176,7 +203,20 @@ Skyboard.globe = (() => {
     lastX = e.clientX; lastY = e.clientY;
     orbit.lastInput = Date.now();
   });
+  el.addEventListener("pointercancel", (e) => {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchDist0 = 0;
+  });
   el.addEventListener("pointerup", (e) => {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchDist0 = 0;
+    if (pointers.size === 1) {         // pinch → one finger: resume rotating cleanly
+      const rest = [...pointers.values()][0];
+      lastX = rest.x; lastY = rest.y;
+      dragging = true; moved = true;
+      return;
+    }
+    if (pointers.size > 0) return;
     dragging = false;
     el.classList.remove("dragging");
     orbit.lastInput = Date.now();
