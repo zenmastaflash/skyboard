@@ -3,11 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skyboard — live flight dashboard</title>
+<title>Skyboard — every plane in the sky, live on a 3D globe</title>
+<meta name="description" content="Skyboard is a live 3D globe of every plane in the sky right now — real flights, real routes, and the real price to be on one. An ambient flight map for daydreaming about travel, not booking it.">
+<link rel="canonical" href="https://sky.zenmastaflash.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Skyboard">
+<meta property="og:title" content="Skyboard — every plane in the sky, live on a 3D globe">
+<meta property="og:description" content="Watch real flights drift across a living earth. Tap a plane for its route and today's cheapest fare. For daydreaming, not booking.">
+<meta property="og:url" content="https://sky.zenmastaflash.com/">
+<meta property="og:image" content="https://sky.zenmastaflash.com/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Skyboard — every plane in the sky, live on a 3D globe">
+<meta name="twitter:description" content="Watch real flights drift across a living earth. Tap a plane for its route and today's cheapest fare.">
+<meta name="twitter:image" content="https://sky.zenmastaflash.com/assets/og.jpg">
+<meta name="theme-color" content="#05080D">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2305080D'/%3E%3Cpath d='M16 5l2 9 9 3-9 2-2 8-2-8-9-2 9-3z' fill='%23A8D4F5'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Skyboard",
+  "url": "https://sky.zenmastaflash.com/",
+  "description": "A live 3D globe of every plane in the sky right now — real flights, real routes, and the real price to be on one.",
+  "applicationCategory": "TravelApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/skyboard.css?v=27">
+<link rel="stylesheet" href="css/skyboard.css?v=28">
 </head>
 <body data-view="standard">
 
@@ -108,47 +134,55 @@
   </div>
 </main>
 
+<noscript>
+  <p style="padding:2rem;font-family:sans-serif;max-width:40rem">
+    Skyboard is a live 3D globe of every plane in the sky right now — real
+    flights from the community ADS-B network, real routes, and today's cheapest
+    fare for each one. It needs JavaScript and WebGL to render the earth.
+  </p>
+</noscript>
+
 <!-- ── Detail cards (one visible at a time) ──────────────── -->
 <article class="plane-card" id="plane-card" hidden aria-live="polite"></article>
 <article class="plane-card" id="city-card" hidden aria-live="polite"></article>
 
 <!-- 3D runtime + bundled assets (local, no CDN) -->
-<script src="vendor/three.min.js?v=27"></script>
-<script src="assets/textures.js?v=27"></script>
+<script src="vendor/three.min.js?v=28"></script>
+<script src="assets/textures.js?v=28"></script>
 <!-- Bundled data + runtime config -->
-<script src="js/config.js?v=27"></script>
-<script src="js/data/airports.js?v=27"></script>
-<script src="js/data/airlines.js?v=27"></script>
+<script src="js/config.js?v=28"></script>
+<script src="js/data/airports.js?v=28"></script>
+<script src="js/data/airlines.js?v=28"></script>
 <!-- Core -->
-<script src="js/core/bus.js?v=27"></script>
-<script src="js/core/registry.js?v=27"></script>
-<script src="js/core/geo.js?v=27"></script>
-<script src="js/core/solar.js?v=27"></script>
+<script src="js/core/bus.js?v=28"></script>
+<script src="js/core/registry.js?v=28"></script>
+<script src="js/core/geo.js?v=28"></script>
+<script src="js/core/solar.js?v=28"></script>
 <!-- Data access: one facade, swappable adapters -->
-<script src="js/api/adapters/mock.js?v=27"></script>
-<script src="js/api/adapters/live.js?v=27"></script>
-<script src="js/api/client.js?v=27"></script>
+<script src="js/api/adapters/mock.js?v=28"></script>
+<script src="js/api/adapters/live.js?v=28"></script>
+<script src="js/api/client.js?v=28"></script>
 <!-- Globe renderer -->
-<script src="js/globe/globe.js?v=27"></script>
-<script src="js/globe/planes3d.js?v=27"></script>
-<script src="js/globe/markers3d.js?v=27"></script>
-<script src="js/globe/cities3d.js?v=27"></script>
-<script src="js/globe/paths3d.js?v=27"></script>
-<script src="js/globe/aurora3d.js?v=27"></script>
+<script src="js/globe/globe.js?v=28"></script>
+<script src="js/globe/planes3d.js?v=28"></script>
+<script src="js/globe/markers3d.js?v=28"></script>
+<script src="js/globe/cities3d.js?v=28"></script>
+<script src="js/globe/paths3d.js?v=28"></script>
+<script src="js/globe/aurora3d.js?v=28"></script>
 <!-- Features: one module each -->
-<script src="js/features/stats.js?v=27"></script>
-<script src="js/features/filters.js?v=27"></script>
-<script src="js/features/budget.js?v=27"></script>
-<script src="js/features/escape.js?v=27"></script>
-<script src="js/features/plane-card.js?v=27"></script>
-<script src="js/features/settings.js?v=27"></script>
-<script src="js/features/sunset.js?v=27"></script>
-<script src="js/features/threads.js?v=27"></script>
-<script src="js/features/aurora.js?v=27"></script>
-<script src="js/features/dreams.js?v=27"></script>
-<script src="js/features/cities.js?v=27"></script>
-<script src="js/features/search.js?v=27"></script>
-<script src="js/views/modes.js?v=27"></script>
-<script src="js/main.js?v=27"></script>
+<script src="js/features/stats.js?v=28"></script>
+<script src="js/features/filters.js?v=28"></script>
+<script src="js/features/budget.js?v=28"></script>
+<script src="js/features/escape.js?v=28"></script>
+<script src="js/features/plane-card.js?v=28"></script>
+<script src="js/features/settings.js?v=28"></script>
+<script src="js/features/sunset.js?v=28"></script>
+<script src="js/features/threads.js?v=28"></script>
+<script src="js/features/aurora.js?v=28"></script>
+<script src="js/features/dreams.js?v=28"></script>
+<script src="js/features/cities.js?v=28"></script>
+<script src="js/features/search.js?v=28"></script>
+<script src="js/views/modes.js?v=28"></script>
+<script src="js/main.js?v=28"></script>
 </body>
 </html>
